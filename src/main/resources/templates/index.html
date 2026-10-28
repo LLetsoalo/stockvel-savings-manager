@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${appName}">F&F Contributions</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" th:href="@{/}"><span class="brand-mark">S</span>Friends &Friends Social Club</a>
+    <span class="topbar-caption">Friends &Friends Social Club <span>·</span> Keep every contribution and repayment accounted for.</span>
+</header>
+
+<main class="page">
+    <section class="welcome">
+        <div>
+            <p class="eyebrow">YOUR GROUP, IN GOOD ORDER</p>
+            <h1>F&F Stockvel overview</h1>
+            <p class="subtitle">Track member savings, contributions, and loan repayments in one place.</p>
+        </div>
+        <form class="month-picker" method="get" th:action="@{/}">
+            <label for="month">View month</label>
+            <input id="month" name="month" type="month" th:value="${selectedMonth}">
+            <button class="button button-dark" type="submit">View</button>
+        </form>
+    </section>
+
+    <div class="notice success" th:if="${success}" th:text="${success}" role="status"></div>
+    <div class="notice error" th:if="${error}" th:text="${error}" role="alert"></div>
+
+    <nav class="report-links" aria-label="Download reports">
+        <span>Download reports:</span>
+        <a th:href="@{/reports/contributions.csv}">Contributions Report</a>
+        <a th:href="@{/reports/loans.csv}">Loans Report</a>
+    </nav>
+
+    <section class="stats" aria-label="Stockvel summary">
+        <article class="stat-card">
+            <p>Contributed in <span th:text="${selectedMonth}">month</span></p>
+            <strong th:text="${#numbers.formatDecimal(monthlyTotal, 1, 2)}">0.00</strong>
+            <span class="stat-note">Selected month</span>
+        </article>
+        <article class="stat-card">
+            <p>Payments recorded</p>
+            <strong th:text="${monthlyContributionCount}">0</strong>
+            <span class="stat-note">For the selected month</span>
+        </article>
+        <article class="stat-card">
+            <p>Registered members</p>
+            <strong th:text="${memberCount}">0</strong>
+            <span class="stat-note">In your stockvel</span>
+        </article>
+        <article class="stat-card">
+            <p>Total contributions</p>
+            <strong th:text="${#numbers.formatDecimal(lifetimeTotal, 1, 2)}">0.00</strong>
+            <span class="stat-note">All recorded payments</span>
+        </article>
+        <article class="stat-card stat-card-accent">
+            <p>Loan balance outstanding</p>
+            <strong th:text="${#numbers.formatDecimal(outstandingLoanTotal, 1, 2)}">0.00</strong>
+            <span class="stat-note">Includes 25% loan interest</span>
+        </article>
+    </section>
+
+    <section class="content-grid">
+        <div class="panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">PAYMENT HISTORY</p>
+                    <h2 th:text="'Contributions for ' + ${selectedMonth}">Monthly contributions</h2>
+                </div>
+                <span class="count-badge" th:text="${contributions.size()} + ' records'">0 records</span>
+            </div>
+            <div class="table-wrap" th:if="${!contributions.isEmpty()}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Date paid</th>
+                        <th class="amount-cell">Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="contribution : ${contributions}">
+                        <td>
+                            <span class="member-name" th:text="${contribution.member.fullName}">Member name</span>
+                            <span class="member-contact" th:text="${contribution.member.contactNumber}">Contact</span>
+                        </td>
+                        <td th:text="${#temporals.format(contribution.contributionDate, 'dd MMM yyyy')}">01 Jan 2026</td>
+                        <td class="amount-cell amount" th:text="${#numbers.formatDecimal(contribution.amount, 1, 2)}">0.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" th:if="${contributions.isEmpty()}">
+                <span class="empty-icon">↗</span>
+                <h3>No contributions for this month yet</h3>
+                <p>Record a payment below .</p>
+            </div>
+        </div>
+
+        <aside class="side-panels">
+            <section class="panel form-panel">
+                <p class="eyebrow">GROW YOUR GROUP</p>
+                <h2>Add a member</h2>
+                <form method="post" th:action="@{/members}" th:object="${memberForm}">
+                    <input type="hidden" name="month" th:value="${selectedMonth}">
+                    <label for="fullName">Full name</label>
+                    <input id="fullName" type="text" th:field="*{fullName}" placeholder="e.g. Letlhogonolo Letsoalo"
+                           autocomplete="name" maxlength="120" required>
+                    <label for="contactNumber">Contact number</label>
+                    <input id="contactNumber" type="tel" th:field="*{contactNumber}" placeholder="e.g. 063 462 4587"
+                           autocomplete="tel" maxlength="40" required>
+                    <button class="button button-primary" type="submit">Add member</button>
+                </form>
+            </section>
+
+            <section class="panel form-panel">
+                <p class="eyebrow">LOG A PAYMENT</p>
+                <h2>Record contribution</h2>
+                <form method="post" th:action="@{/contributions}" th:object="${contributionForm}">
+                    <input type="hidden" name="month" th:value="${selectedMonth}">
+                    <label for="memberId">Member</label>
+                    <select id="memberId" th:field="*{memberId}" required>
+                        <option value="">Select a member</option>
+                        <option th:each="member : ${members}" th:value="${member.id}"
+                                th:text="${member.fullName}"></option>
+                    </select>
+                    <label for="amount">Amount</label>
+                    <div class="amount-input">
+                        <span>R</span>
+                        <input id="amount" type="number" th:field="*{amount}" min="0.01" step="0.01"
+                               placeholder="0.00" required>
+                    </div>
+                    <label for="contributionDate">Date paid</label>
+                    <input id="contributionDate" type="date" th:field="*{contributionDate}" required>
+                    <button class="button button-primary" type="submit" th:disabled="${members.isEmpty()}">
+                        Record payment
+                    </button>
+                    <p class="form-hint" th:if="${members.isEmpty()}">Add a member before recording a payment.</p>
+                </form>
+            </section>
+
+            <section class="panel form-panel">
+                <p class="eyebrow">MEMBER SUPPORT</p>
+                <h2>Issue a loan</h2>
+                <form method="post" th:action="@{/loans}" th:object="${loanForm}">
+                    <input type="hidden" name="month" th:value="${selectedMonth}">
+                    <label for="loanMemberId">Member</label>
+                    <select id="loanMemberId" th:field="*{memberId}" required>
+                        <option value="">Select a member</option>
+                        <option th:each="member : ${members}" th:value="${member.id}"
+                                th:text="${member.fullName}"></option>
+                    </select>
+                    <label for="principal">Loan amount</label>
+                    <div class="amount-input">
+                        <span>R</span>
+                        <input id="principal" type="number" th:field="*{principal}" min="0.01" step="0.01"
+                               placeholder="0.00" required>
+                    </div>
+                    <div class="repayable-preview" aria-live="polite">
+                        <span>Repayable amount <span class="preview-rate">(loan + 25% of loan amount)</span></span>
+                        <strong id="repayableAmount">Enter a loan amount</strong>
+                    </div>
+                    <label for="loanDate">Date issued</label>
+                    <input id="loanDate" type="date" th:field="*{loanDate}" required>
+                    <button class="button button-primary" type="submit" th:disabled="${members.isEmpty()}">
+                        Issue loan
+                    </button>
+                </form>
+            </section>
+
+            <section class="panel form-panel">
+                <p class="eyebrow">REPAYMENT</p>
+                <h2>Record repayment</h2>
+                <form method="post" th:action="@{/repayments}" th:object="${repaymentForm}">
+                    <input type="hidden" name="month" th:value="${selectedMonth}">
+                    <label for="loanId">Open loan</label>
+                    <select id="loanId" th:field="*{loanId}" required>
+                        <option value="">Select a loan</option>
+                        <option th:each="loan : ${openLoans}" th:value="${loan.id}"
+                                th:text="${loan.member.fullName + ' — R' + #numbers.formatDecimal(loanBalances.get(loan.id), 1, 2)}"></option>
+                    </select>
+                    <label for="repaymentAmount">Amount repaid</label>
+                    <div class="amount-input">
+                        <span>R</span>
+                        <input id="repaymentAmount" type="number" th:field="*{amount}" min="0.01" step="0.01"
+                               placeholder="0.00" required>
+                    </div>
+                    <label for="repaymentDate">Date paid</label>
+                    <input id="repaymentDate" type="date" th:field="*{repaymentDate}" required>
+                    <button class="button button-primary" type="submit" th:disabled="${openLoans.isEmpty()}">
+                        Record repayment
+                    </button>
+                    <p class="form-hint" th:if="${openLoans.isEmpty()}">There are no open loans to repay.</p>
+                </form>
+            </section>
+        </aside>
+    </section>
+
+    <section class="lower-grid" aria-label="Loans and stockvel members">
+        <section class="panel loans-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">SAVINGS GROUP LENDING</p>
+                    <h2>Loan balances</h2>
+                </div>
+                <span class="count-badge" th:text="${loans.size()} + ' loans'">0 loans</span>
+            </div>
+            <div class="table-wrap" th:if="${!loans.isEmpty()}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Date issued</th>
+                        <th class="amount-cell">Loaned</th>
+                        <th class="amount-cell">Total due (+25%)</th>
+                        <th class="amount-cell">Repaid</th>
+                        <th class="amount-cell">Balance</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="loan : ${loans}">
+                        <td>
+                            <span class="member-name" th:text="${loan.member.fullName}">Member name</span>
+                            <span class="member-contact" th:text="${loan.member.contactNumber}">Contact</span>
+                        </td>
+                        <td th:text="${#temporals.format(loan.loanDate, 'dd MMM yyyy')}">01 Jan 2026</td>
+                        <td class="amount-cell" th:text="${#numbers.formatDecimal(loan.principal, 1, 2)}">0.00</td>
+                        <td class="amount-cell" th:text="${#numbers.formatDecimal(loan.getTotalRepayable(), 1, 2)}">0.00</td>
+                        <td class="amount-cell" th:text="${#numbers.formatDecimal(repaidAmounts.get(loan.id), 1, 2)}">0.00</td>
+                        <td class="amount-cell amount" th:text="${#numbers.formatDecimal(loanBalances.get(loan.id), 1, 2)}">0.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-members" th:if="${loans.isEmpty()}">
+                No loans have been recorded.
+            </div>
+        </section>
+
+        <section class="panel members-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="eyebrow">YOUR STOCKVEL</p>
+                    <h2>Members</h2>
+                </div>
+                <span class="count-badge" th:text="${memberCount} + ' members'">0 members</span>
+            </div>
+            <div class="member-list" th:if="${!members.isEmpty()}">
+                <div class="member-row" th:each="member : ${members}">
+                    <span class="avatar" th:text="${#strings.substring(member.fullName, 0, 1).toUpperCase()}">M</span>
+                    <span class="member-details">
+                        <strong th:text="${member.fullName}">Member name</strong>
+                        <span th:text="${member.contactNumber}">Contact number</span>
+                    </span>
+                    <a class="member-history-link"
+                       th:href="@{/members/{memberId}/contributions(memberId=${member.id})}">
+                        Contribution history
+                    </a>
+                </div>
+            </div>
+            <div class="empty-members" th:if="${members.isEmpty()}">
+                No members have been added yet. Use the form above to register your first member.
+            </div>
+        </section>
+    </section>
+</main>
+<footer>Friends &Friends Social Club <span>·</span> Keep every contribution and repayment accounted for.</footer>
+<script th:src="@{/loan-calculator.js}" defer></script>
+</body>
+</html>

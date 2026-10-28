@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${member.fullName} + ' - Contribution history'">Contribution history</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" th:href="@{/}"><span class="brand-mark">S</span> Friends &Friends Social Club</a>
+    <span class="topbar-caption">Friends &Friends Social Club <span>·
+</header>
+
+<main class="page">
+    <a class="history-back" th:href="@{/}">← Back to overview</a>
+    <section class="welcome">
+        <div>
+            <p class="eyebrow">MEMBER CONTRIBUTIONS</p>
+            <h1 th:text="${member.fullName}">Member name</h1>
+            <p class="subtitle" th:text="${member.contactNumber}">Contact number</p>
+        </div>
+    </section>
+
+    <section class="history-summary" aria-label="Contribution summary">
+        <article>
+            <span>Total contributed</span>
+            <strong th:text="'R ' + ${#numbers.formatDecimal(contributionTotal, 1, 2)}">R 0.00</strong>
+        </article>
+        <article>
+            <span>Payments recorded</span>
+            <strong th:text="${contributions.size()}">0</strong>
+        </article>
+        <article th:if="${!contributions.isEmpty()}">
+            <span>Contribution period</span>
+            <strong class="period-value">
+                <span th:text="${#temporals.format(contributions.get(0).contributionDate, 'dd MMM yyyy')}">First date</span>
+                <span> – </span>
+                <span th:text="${#temporals.format(contributions.get(contributions.size() - 1).contributionDate, 'dd MMM yyyy')}">Last date</span>
+            </strong>
+        </article>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <p class="eyebrow">FIRST TO MOST RECENT</p>
+                <h2>Contribution history</h2>
+            </div>
+        </div>
+        <div class="table-wrap" th:if="${!contributions.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Date paid</th>
+                    <th class="amount-cell">Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="contribution : ${contributions}">
+                    <td th:text="${#temporals.format(contribution.contributionDate, 'dd MMM yyyy')}">01 Jan 2026</td>
+                    <td class="amount-cell amount"
+                        th:text="'R ' + ${#numbers.formatDecimal(contribution.amount, 1, 2)}">R 0.00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty-state" th:if="${contributions.isEmpty()}">
+            <span class="empty-icon">↗</span>
+            <h3>No contributions recorded yet</h3>
+            <p>This member's contribution history will appear here after their first payment.</p>
+        </div>
+    </section>
+</main>
+<footer>Friends &Friends Social Club <span>·</span> Keep every contribution and repayment accounted for.</footer>
+</body>
+</html>
