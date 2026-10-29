@@ -1,92 +1,174 @@
-# Stockvel Savings Manager Demo
+# Stockvel Savings Manager
 
-> Demo application — not production-ready software.
+**A Java and Spring Boot web application for managing community savings groups.**
 
-Stockvel Savings Manager is a demonstration web application for exploring how a
-community savings group can track members, contributions, loans, repayments,
-and financial summaries in one place. It provides a dashboard, individual
-member contribution histories, and downloadable contributions and loans  reports.
+> **Project status:** Demonstration application — not production-ready.
 
-The demo applies a fixed 25% interest charge to each loan. For example, a
-principal of R1,000 has a total repayable amount of R1,250.
+## Overview
 
-## Demo limitations
+Stockvel Savings Manager that demonstrates how a community savings group can manage members, monthly contributions, loans, repayments, and financial summaries in one web application.
 
-This application is intended for local evaluation and demonstration. It has no
-login, roles, or access control, and its database configuration and schema
-management are development-oriented. Do not expose it to the public internet or
-use it to store real member or financial data as it is just an overview for now.
+The application includes a dashboard, individual member contribution histories, loan tracking, and downloadable CSV reports for loans and contributions.
+
+## Features
+
+- **Member management:** Register members and maintain their contact details.
+- **Contribution tracking:** Record dated contributions and review monthly and lifetime totals.
+- **Member histories:** View individual contribution records.
+- **Loan management:** Issue loans using a fixed 25% interest calculation.
+- **Repayment tracking:** Record repayments and view outstanding loan balances.
+- **Financial reports:** Download contribution and loan summaries as CSV files.
+- **Dashboard:** Review key savings group information in one place.
+
+### Example loan calculation
+
+The demo applies a fixed 25% interest charge to each loan.
+
+| Item | Example |
+|---|---:|
+| Loan principal | R1,000 |
+| Interest (25%) | R250 |
+| Total repayable | R1,250 |
+
+This being a demonstration calculation, not financial advice.
+
+## Technology stack
+
+- Java 25
+- Spring Boot
+- Maven
+- PostgreSQL
+- HTML and CSS
+- JavaScript
 
 ## Requirements
+
+Before running the application, install:
 
 - Java 25
 - PostgreSQL
 - GNU Make (optional)
 
-## Set up the database
+Verify your Java installation:
 
-Create a PostgreSQL database named `stockvel_db`. For example, from `psql`:
+```bash
+java -version
+```
+
+## Getting started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/LLetsoalo/stockvel-savings-manager.git
+cd stockvel-savings-manager
+```
+
+If your `pom.xml` is inside a nested `demo` directory, enter it:
+
+```bash
+cd demo
+```
+
+Run the following commands from the directory containing `pom.xml`.
+
+### 2. Create the PostgreSQL database
+
+Using pgAdmin, create a database named `stockvel_db`.
+
+Alternatively, run this SQL command in PostgreSQL:
 
 ```sql
 CREATE DATABASE stockvel_db;
 ```
 
-Configure the connection in the terminal before starting the application.
-PowerShell:
+### 3. Configure the database connection
+
+Set the environment variables in your terminal before starting the application.
+
+**Windows PowerShell:**
 
 ```powershell
 $env:SPRING_DATASOURCE_URL = "jdbc:postgresql://localhost:5432/stockvel_db"
 $env:SPRING_DATASOURCE_USERNAME = "postgres"
-$env:SPRING_DATASOURCE_PASSWORD = "<your-local-password>"
+$env:SPRING_DATASOURCE_PASSWORD = "your-local-password"
 ```
 
-macOS/Linux shell:
+Replace `your-local-password` with your own local PostgreSQL password.
 
-```sh
+**macOS/Linux:**
+
+```bash
 export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/stockvel_db"
 export SPRING_DATASOURCE_USERNAME="postgres"
-export SPRING_DATASOURCE_PASSWORD="<your-local-password>"
+export SPRING_DATASOURCE_PASSWORD="your-local-password"
 ```
 
-Use the username and password configured for your own local PostgreSQL
-installation. Do not commit credentials to source control.
+### 4. Run the application
 
-## Run the demo
-
-From the `demo` project directory on Windows:
+**Windows:**
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-On macOS/Linux:
+**macOS/Linux:**
 
-```sh
+```bash
+chmod +x mvnw
 ./mvnw spring-boot:run
 ```
 
-If GNU Make is installed, `make run` starts the application as well. Once it
-has started, open [http://localhost:8080](http://localhost:8080).
+Once the application starts, open:
 
-## Demo features
+http://localhost:8080
 
-- Register stockvel members and maintain their contact details.
-- Record dated contributions and review monthly and lifetime totals.
-- Browse each member's contribution history.
-- Issue loans with the demo's fixed 25% interest calculation.
-- Record repayments and view outstanding loan balances.
-- Download contribution and loan summaries as CSV files.
+### 5. Run tests and build
 
-## Useful commands
+**Windows:**
 
-Run these commands from the `demo` directory:
+```powershell
+.\mvnw.cmd test
+.\mvnw.cmd clean package
+```
 
-| Purpose | Windows | macOS/Linux |
-| --- | --- | --- |
-| Start the app | `.\mvnw.cmd spring-boot:run` | `./mvnw spring-boot:run` |
-| Run tests | `.\mvnw.cmd test` | `./mvnw test` |
-| Build the executable JAR | `.\mvnw.cmd clean package` | `./mvnw clean package` |
-| Clean build output | `.\mvnw.cmd clean` | `./mvnw clean` |
+**macOS/Linux:**
 
-With GNU Make, the corresponding targets are `make run`, `make test`,
-`make package`, and `make clean`.
+```bash
+./mvnw test
+./mvnw clean package
+```
+
+If GNU Make is installed and the project Makefile is configured correctly, you can also use `make run`, `make test`, `make package`, and `make clean`.
+
+## Demo limitations
+
+This project is intended for local evaluation and demonstration.
+
+- There is no authentication, user-role management, or access control.
+- Database configuration and schema management are development-oriented.
+- The loan interest calculation is fixed at 25%.
+- The application has not been hardened for production deployment.
+
+**Do not expose this application to the public internet or use it to store real member or financial information.**
+
+## Future improvements
+
+Potential next steps include:
+
+- User authentication and role-based permissions.
+- Configurable contribution schedules and due dates.
+- Overdue contribution tracking and notifications.
+- Improved financial dashboards and reporting.
+- Secure production database configuration.
+- Automated tests for contributions, loans, and repayments.
+
+## Author
+
+**LLetsoalo**
+
+GitHub: [@LLetsoalo](https://github.com/LLetsoalo)
+
+---
+
+*This project was developed as a software development portfolio project to demonstrate Java, Spring Boot, database integration, and web application development.*
